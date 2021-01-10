@@ -11,7 +11,7 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     4) Scan an IP with AbuseIPDB 
 
 Author: Jack Power
-Version: 3.1
+Version: 3.2
 
 '''
 
@@ -24,7 +24,7 @@ import json
 import re
 import ipaddress 
 
-versionNo = "3.1"
+versionNo = "3.2"
 VTkey = "" # enter VT API key here
 ABkey = "" # enter AbuseIPDB API key here
 
@@ -128,12 +128,13 @@ def AbuseIP_Check(IP, ABkey):
         print("")
         print("================================================")
         print("")
+    except requests.RequestException as e:
+        return dict(error=str(e))
+        #as_owner = parsed['as_owner']
+        #asn = str(parsed['asn'])
+        #country = parsed['country']
+        #detected_url = parsed['detected_urls']or=str(e))
 
-            as_owner = parsed['as_owner']
-        asn = str(parsed['asn'])
-        country = parsed['country']
-        detected_url = parsed['detected_urls']or=str(e))
-    
 def VT_IP_Check(IP, VTkey):
     params = {'apikey': VTkey, 'ip': IP}
     try:
