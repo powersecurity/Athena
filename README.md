@@ -5,6 +5,8 @@ Automated Tool for Cyber Threat Intelligence
 
 1) Virustotal Hash scan 
 2) Virustotal file upload
+3) Virustotal IP Lookup
+4) AbuseIPDB Lookup
 
 Each of the above allows the user to quickly and efficiently check for malicious content and receive a CLI output aswell as save the results to an output file. 
 
@@ -17,4 +19,6 @@ Each of the above allows the user to quickly and efficiently check for malicious
 <b> -t / --topvendors</b> -> Display the Top 5 Anti-virus vendor results
 
 <b> -ip / --ipaddr </b> -> Scan an IP address / Find any malicious samples or domains related to an IP
+
+<b> -aip / --aipaddr </b> -> Scan an IP address with AbuseIPDB for malicious confidence and past malicious activity related to a specific IP
 
