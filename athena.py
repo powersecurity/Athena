@@ -11,7 +11,7 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     4) Scan an IP with AbuseIPDB 
 
 Author: Jack Power
-Version: 3.0
+Version: 3.1
 
 '''
 
@@ -24,7 +24,7 @@ import json
 import re
 import ipaddress 
 
-versionNo = "3.0"
+versionNo = "3.1"
 VTkey = "" # enter VT API key here
 ABkey = "" # enter AbuseIPDB API key here
 
@@ -129,9 +129,10 @@ def AbuseIP_Check(IP, ABkey):
         print("================================================")
         print("")
 
-        
-    except requests.RequestException as e:
-        return dict(error=str(e))
+            as_owner = parsed['as_owner']
+        asn = str(parsed['asn'])
+        country = parsed['country']
+        detected_url = parsed['detected_urls']or=str(e))
     
 def VT_IP_Check(IP, VTkey):
     params = {'apikey': VTkey, 'ip': IP}
@@ -159,12 +160,15 @@ def VT_IP_Check(IP, VTkey):
     print("\n <-- IP Report --> \n")
 
     response = int(json_response.get('response_code'))
+    try:
+        as_owner = parsed['as_owner']
+        asn = str(parsed['asn'])
+        country = parsed['country']
+        detected_url = parsed['detected_urls']
+    except KeyError:
+        print("[!] It appears this IP is not available on Virustotal!")
+        exit(1)
 
-    as_owner = parsed['as_owner']
-    asn = str(parsed['asn'])
-    country = parsed['country']
-    detected_url = parsed['detected_urls']
-    
     print("[*]AS Owner: " + as_owner)
     time.sleep(0.4)
     print("[*]ASN:" + asn )
@@ -196,13 +200,16 @@ def VT_IP_Check(IP, VTkey):
 
     print("\n[*] Detected Downloaded Samples:\n-----------------------------------------")
     time.sleep(0.4)
-    for sample in parsed['detected_downloaded_samples']:
-        sampleResult = sample
-        parsedSamplePositives = str(sample['positives'])
-        parsedSampleSha = sample['sha256']
-        time.sleep(0.01)
-        print("[+] Sample Positive Rate: " + parsedSamplePositives)
-        print("\t Sample SHA256 Hash: " + parsedSampleSha + "\n")
+    try:
+        for sample in parsed['detected_downloaded_samples']:
+            sampleResult = sample
+            parsedSamplePositives = str(sample['positives'])
+            parsedSampleSha = sample['sha256']
+            time.sleep(0.01)
+            print("[+] Sample Positive Rate: " + parsedSamplePositives)
+            print("\t Sample SHA256 Hash: " + parsedSampleSha + "\n")
+    except KeyError:
+        exit(1)
 
 def VT_Send_File_To_Scan(VTkey, file_to_scan, output):
     # Routine that allows a file to be scanned on VT #
