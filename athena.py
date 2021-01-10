@@ -8,9 +8,10 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     1) Scan a hash against Virustotal API and display/save results
     2) Upload a file to Virustotal and display/save results
     3) Scan an IP for resolve information aswell as any malicious samples/domains related to that IP
+    4) Scan an IP with AbuseIPDB 
 
 Author: Jack Power
-Version: 2.0
+Version: 3.0
 
 '''
 
@@ -21,9 +22,11 @@ import os
 import requests
 import json
 import re
+import ipaddress 
 
-versionNo = "2.0"
-key = "" # enter VT API key here
+versionNo = "3.0"
+VTkey = "" # enter VT API key here
+ABkey = "" # enter AbuseIPDB API key here
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -50,42 +53,88 @@ def main():
     parser.add_argument('-H', '--hash', type=checkhash, required=False, help='Single hash to analyze')
     parser.add_argument('-t', '--topvendor', action='store_const', const=1, required=False, help='Display top 5 vendor results')
     parser.add_argument('-fs', '--filescan', help='Submit a file to Virustotal to be scanned')
-    parser.add_argument('-ip', '--ipaddr', help='Submit an IP to Virustotal to be scanned')
+    parser.add_argument('-vtip', '--vtipaddr', help='Submit an IP to Virustotal to be scanned')
     parser.add_argument('-url', '--url', help='Submit a URL Domain to Virustotal to be scanned')
+    parser.add_argument('-aip', '--abipaddr', help='Submit an IP to abuseipdb to be analyzed')
     args = parser.parse_args()
 
-    if args.ipaddr and key:
-        VT_IP_Check(args.ipaddr, key)
+    if args.abipaddr and ABkey:
+        AbuseIP_Check(args.abipaddr, ABkey)
 
-    
-    if args.filescan and key and args.output:
-        VT_Send_File_To_Scan(key, args.filescan, args.output)
-    if not args.filescan and not key and not args.output:
+    if args.vtipaddr and VTkey:
+        VT_IP_Check(args.vtipaddr, VTkey)
+
+    if args.filescan and VTkey and args.output:
+        VT_Send_File_To_Scan(VTkey, args.filescan, args.output)
+    if not args.filescan and not VTkey and not args.output:
         print("[!] Error: You must supply:\n\t1) File to Scan\n\t2) VT API KEY\n\t3) Output file\n\t Please try again.")
        
 
     if args.topvendor:
         #print("****************Top vendor")
-        if args.hash and key:
+        if args.hash and VTkey:
             file = open(args.output, 'w+')
             file.write("************************************\n")
             file.write("** TOP 5 VirusTotal Vendor Report **\n")
             file.write("************************************\n")
             file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
             file.close()
-            VT_Request_Top_Vendor(key, args.hash.rstrip(), args.topvendor, args.output)
+            VT_Request_Top_Vendor(VTkey, args.hash.rstrip(), args.topvendor, args.output)
     else:
-        if args.hash and key:
+        if args.hash and VTkey:
             file = open(args.output, 'w+')
             file.write("*******************************\n")
             file.write("** VirusTotal Vendor Report **\n")
             file.write("******************************\n")
             file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
             file.close()
-            VT_Request(key, args.hash.rstrip(), args.output)
+            VT_Request(VTkey, args.hash.rstrip(), args.output)
 
-def VT_IP_Check(IP, key):
-    params = {'apikey': key, 'ip': IP}
+def AbuseIP_Check(IP, ABkey):
+    querystring = {"ipAddress": IP, "maxAgeInDays": 90}
+    headers = {'Accept': 'application/json', 'Key': ABkey,}
+    try:
+        #response = requests.get('https://api.abuseipdb.com/api/v2/check', params=params)
+        response = requests.request(method='GET', url='https://api.abuseipdb.com/api/v2/check', headers=headers, params=querystring)
+        decodedResponse = json.loads(response.text)
+        
+        print("")
+        print("================================================")
+        print("==              ABUSE IPDB Report             ==")
+        print("================================================")
+
+        print("")
+        print("[*] Results for ", decodedResponse["data"]["ipAddress"])
+        print("-----------------------------------------------")
+
+        # If Ip is private
+        if ("172" in decodedResponse["data"]["ipAddress"] or "192" in decodedResponse["data"]["ipAddress"]):
+            if (decodedResponse["data"]["isPublic"] == False):
+                print("[-] Private IP")
+        
+        abuseScore = str(decodedResponse["data"]["abuseConfidenceScore"])
+        totReports = str(decodedResponse["data"]["totalReports"])
+        hostName = str(decodedResponse["data"]["hostnames"]).strip("'[]'")
+
+        print("[*] Country: " + decodedResponse["data"]["countryCode"])
+        print("[*] Owner: " + decodedResponse["data"]["domain"])
+        print("[*] Abuse Confidence: " + abuseScore + "%")
+        print("[*] Times Reported: " + totReports)
+
+        print("\n[*] UsageType: " + decodedResponse["data"]["usageType"])
+        if hostName:
+            print("[*] Hostname(s): " + hostName)
+        
+        print("")
+        print("================================================")
+        print("")
+
+        
+    except requests.RequestException as e:
+        return dict(error=str(e))
+    
+def VT_IP_Check(IP, VTkey):
+    params = {'apikey': VTkey, 'ip': IP}
     try:
         response = requests.get("https://www.virustotal.com/vtapi/v2/ip-address/report", params=params)
     except requests.RequestException as e:
@@ -155,9 +204,9 @@ def VT_IP_Check(IP, key):
         print("[+] Sample Positive Rate: " + parsedSamplePositives)
         print("\t Sample SHA256 Hash: " + parsedSampleSha + "\n")
 
-def VT_Send_File_To_Scan(key, file_to_scan, output):
+def VT_Send_File_To_Scan(VTkey, file_to_scan, output):
     # Routine that allows a file to be scanned on VT #
-    params = {'apikey': key}
+    params = {'apikey': VTkey}
     files = {'file': open(file_to_scan, "rb")}
     
     try:
@@ -209,7 +258,7 @@ def VT_Send_File_To_Scan(key, file_to_scan, output):
         print("*** If hash does not appear to be scanned. Wait a few minutes and scan the hash using -H argument\n")
         time.sleep(60)
 
-        VT_Request(key, md5, output)
+        VT_Request(VTkey, md5, output)
 
         
 
@@ -220,9 +269,9 @@ def VT_Send_File_To_Scan(key, file_to_scan, output):
 #    Routine for VT Hash lookup    #
 #**********************************#
 def checkhash(hashValue):
-    if key == "":
+    if VTkey == "":
         print("[!] API Key error: You have not supplied your Virustotal API key")
-    elif key != "":
+    elif VTkey != "":
         try:
             if len(hashValue) == 32:
                 print("[+] Checking MD5 Hash: " + hashValue + " in Virustotal")
@@ -246,8 +295,8 @@ def checkhash(hashValue):
             print("[!] There appears to be an error with your input hash. Please try again. \n[!] Error:\n")
             print(Exception)
 
-def VT_Request_Top_Vendor(key, hash, topvendor, output):
-    params = {'apikey': key, 'resource': hash}
+def VT_Request_Top_Vendor(VTkey, hash, topvendor, output):
+    params = {'apikey': VTkey, 'resource': hash}
     url = requests.get('https://www.virustotal.com/vtapi/v2/file/report', params=params)
     json_response = url.json()
     x = str(json_response)
@@ -324,8 +373,8 @@ def jsonResponse(response, json_response, hash, output):
     else:
         print("[~]" + hash + " cound not be searched. Please try again later.\n")
 
-def VT_Request(key, hash, output):
-    params = {'apikey': key, 'resource': hash}
+def VT_Request(VTkey, hash, output):
+    params = {'apikey': VTkey, 'resource': hash}
     url = requests.get('https://www.virustotal.com/vtapi/v2/file/report', params=params)
     json_response = url.json()
     x = str(json_response)
