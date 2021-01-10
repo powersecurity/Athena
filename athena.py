@@ -7,9 +7,10 @@ Athena: Automating Cyber Threat Intelligence
 Description: Cyber T.I tool allows thew user to perform the following VT lookups:
     1) Scan a hash against Virustotal API and display/save results
     2) Upload a file to Virustotal and display/save results
+    3) Scan an IP for resolve information aswell as any malicious samples/domains related to that IP
 
 Author: Jack Power
-Version: 1.0
+Version: 2.0
 
 '''
 
@@ -19,8 +20,9 @@ import time
 import os
 import requests
 import json
+import re
 
-versionNo = "1.0"
+versionNo = "2.0"
 key = "" # enter VT API key here
 
 HEADER = '\033[95m'
@@ -46,13 +48,14 @@ def main():
     parser.add_argument('-v', '--version', action='version', version='%(prog)s Version: ' + versionNo)
     parser.add_argument('-o', '--output', required=False, help='Output File location')
     parser.add_argument('-H', '--hash', type=checkhash, required=False, help='Single hash to analyze')
-    parser.add_argument('-u', '--unlimited', action='store_const', const=1, required=False, help='Change the 26 second sleep timer to 1')
     parser.add_argument('-t', '--topvendor', action='store_const', const=1, required=False, help='Display top 5 vendor results')
-
     parser.add_argument('-fs', '--filescan', help='Submit a file to Virustotal to be scanned')
-    parser.add_argument('-if', '--inputfile', action='store', help='File path -> File to be scanned')
-
+    parser.add_argument('-ip', '--ipaddr', help='Submit an IP to Virustotal to be scanned')
+    parser.add_argument('-url', '--url', help='Submit a URL Domain to Virustotal to be scanned')
     args = parser.parse_args()
+
+    if args.ipaddr and key:
+        VT_IP_Check(args.ipaddr, key)
 
     
     if args.filescan and key and args.output:
@@ -80,6 +83,77 @@ def main():
             file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
             file.close()
             VT_Request(key, args.hash.rstrip(), args.output)
+
+def VT_IP_Check(IP, key):
+    params = {'apikey': key, 'ip': IP}
+    try:
+        response = requests.get("https://www.virustotal.com/vtapi/v2/ip-address/report", params=params)
+    except requests.RequestException as e:
+        return dict(error=str(e))
+    
+    json_response = response.json()
+    x = str(json_response)
+    x = x.replace("'", '"')
+    x = x.replace("False", '"False"')
+    x = x.replace("True", '"true"')
+    x = x.replace("None", '"None"')
+
+    try:
+        parsed = json.loads(x)
+    except KeyError:
+        print("[!] Unable to lookup IP address")
+    
+    beautifyJsonIP = json.dumps(parsed, indent=2, sort_keys=True)
+
+    # Beautify the JSON
+    print("\n\n[*]" + IP + " analyzed by Virustotal")
+    print("\n <-- IP Report --> \n")
+
+    response = int(json_response.get('response_code'))
+
+    as_owner = parsed['as_owner']
+    asn = str(parsed['asn'])
+    country = parsed['country']
+    detected_url = parsed['detected_urls']
+    
+    print("[*]AS Owner: " + as_owner)
+    time.sleep(0.4)
+    print("[*]ASN:" + asn )
+    time.sleep(0.4)
+    print("[*] Country: " + country + "\n")
+    time.sleep(0.4)
+
+    print("[*] IP Resolution:\n--------------------")
+    time.sleep(0.1)
+    for hostname in parsed['resolutions']:
+        hostnameResult = hostname
+        parsedHost = hostname['hostname']
+        parsedHostLastResolved = hostname['last_resolved']
+        time.sleep(0.01)
+        print(parsedHost + "\n" + parsedHostLastResolved + "\n")
+    
+    print("\n[*] Obfuscated Domains related to " + IP + "\n---------------------------------------------")
+    time.sleep(0.4)
+    for domain in parsed['detected_urls']:
+        domainResult = domain
+        parsedDomain = domain['url']
+        strippedDomain = parsedDomain.strip()
+        x = re.sub(r"\.", "[dot]", strippedDomain)
+        x = re.sub("https://", "hxxps://", x)
+        x = re.sub("http://", "hxxp://", x)
+       
+        print(x)
+        time.sleep(0.01)
+
+    print("\n[*] Detected Downloaded Samples:\n-----------------------------------------")
+    time.sleep(0.4)
+    for sample in parsed['detected_downloaded_samples']:
+        sampleResult = sample
+        parsedSamplePositives = str(sample['positives'])
+        parsedSampleSha = sample['sha256']
+        time.sleep(0.01)
+        print("[+] Sample Positive Rate: " + parsedSamplePositives)
+        print("\t Sample SHA256 Hash: " + parsedSampleSha + "\n")
 
 def VT_Send_File_To_Scan(key, file_to_scan, output):
     # Routine that allows a file to be scanned on VT #
@@ -142,8 +216,6 @@ def VT_Send_File_To_Scan(key, file_to_scan, output):
     except KeyError:
         print("[!] File could not be scanned")   
     
-    
-
 #**********************************#
 #    Routine for VT Hash lookup    #
 #**********************************#
@@ -188,8 +260,8 @@ def VT_Request_Top_Vendor(key, hash, topvendor, output):
     ms = "Microsoft"
     sop = "Sophos"
     kas = "Kaspersky"
-    crwd = "Crowdstrike"
-    mlb = "Malwarebytes"
+    crwd = "CrowdStrike"
+    feye = "FireEye"
 
     headerResults = OKGREEN + "****************************TOP 5 Vendors**********************************\n" + ENDC
     headerResults += OKGREEN + "***************************************************************************\n" + ENDC
@@ -214,7 +286,7 @@ def VT_Request_Top_Vendor(key, hash, topvendor, output):
             variantResult = parsed['scans'][vendorResult]['result']
             if variantResult == "None":
                 variantResult = "Clean"
-            if vendor == ms or vendor == sop or vendor == kas or vendor == crwd or vendor == mlb:
+            if vendor == ms or vendor == sop or vendor == kas or vendor == crwd or vendor == feye:
                 dataOut = "{:<20} {:>50}".format(vendorResult, variantResult)
                 print(dataOut)
                 file = open(output, 'a')
