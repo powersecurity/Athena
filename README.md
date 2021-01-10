@@ -16,3 +16,5 @@ Each of the above allows the user to quickly and efficiently check for malicious
 
 <b> -t / --topvendors</b> -> Display the Top 5 Anti-virus vendor results
 
+<b> -ip / --ipaddr </b> -> Scan an IP address / Find any malicious samples or domains related to an IP
+
