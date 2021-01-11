@@ -22,3 +22,8 @@ Each of the above allows the user to quickly and efficiently check for malicious
 
 <b> -aip / --aipaddr </b> -> Scan an IP address with AbuseIPDB for malicious confidence and past malicious activity related to a specific IP
 
+<b> -ccip / --ccipaddr </b> -> Check for daily malicious IPs via Cybercure.ai
+
+<b> -curl / --ccurladdr </b> -> Check for daily malicious URLs via Cybercure.ai
+
+<b> -cchash / --cchash </b> -> Check for daily malicious Hashs via Cybercure.ai
