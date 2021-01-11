@@ -1,12 +1,13 @@
 # Athena
 Automated Tool for Cyber Threat Intelligence
 
-<b>Athena</b> <i>Version 1.0</i> can be used for automated Virustotal lookups. You can perform the following functions:
+<b>Athena</b> <i>Version 4.0</i> can be used for automated Threat Intelligence lookups. You can perform the following functions:
 
 1) Virustotal Hash scan 
 2) Virustotal file upload
 3) Virustotal IP Lookup
 4) AbuseIPDB Lookup
+5) Cybercure.ai Threat Intelligence lookups for Malicious IP/URL/Hash
 
 Each of the above allows the user to quickly and efficiently check for malicious content and receive a CLI output aswell as save the results to an output file. 
 
