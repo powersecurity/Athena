@@ -27,8 +27,8 @@ import ipaddress
 
 
 versionNo = "4.0"
-VTkey = "e86b9c4700be791552891c6530b4a430ebed66c04badfe37af9ccdca30a22e9b" # enter VT API key here
-ABkey = "5cc0e73b2350cd18753c926c31c77762510b7c3e2d0eef73c002a85fa85d72c599364276edbeeb2c" # enter AbuseIPDB API key here
+VTkey = "" # enter VT API key here
+ABkey = "" # enter AbuseIPDB API key here
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
