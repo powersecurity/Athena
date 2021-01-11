@@ -9,9 +9,10 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     2) Upload a file to Virustotal and display/save results
     3) Scan an IP for resolve information aswell as any malicious samples/domains related to that IP
     4) Scan an IP with AbuseIPDB 
+    5) Daily list of malicious IP/URL/Hash from Cybercure.ai
 
 Author: Jack Power
-Version: 3.2
+Version: 4.0
 
 '''
 
@@ -24,9 +25,10 @@ import json
 import re
 import ipaddress 
 
-versionNo = "3.2"
-VTkey = "" # enter VT API key here
-ABkey = "" # enter AbuseIPDB API key here
+
+versionNo = "4.0"
+VTkey = "e86b9c4700be791552891c6530b4a430ebed66c04badfe37af9ccdca30a22e9b" # enter VT API key here
+ABkey = "5cc0e73b2350cd18753c926c31c77762510b7c3e2d0eef73c002a85fa85d72c599364276edbeeb2c" # enter AbuseIPDB API key here
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -56,7 +58,34 @@ def main():
     parser.add_argument('-vtip', '--vtipaddr', help='Submit an IP to Virustotal to be scanned')
     parser.add_argument('-url', '--url', help='Submit a URL Domain to Virustotal to be scanned')
     parser.add_argument('-aip', '--abipaddr', help='Submit an IP to abuseipdb to be analyzed')
+    parser.add_argument('-ccip', '--ccipaddr', action='store_const', const=1, required=False, help='Check Daily Malicious IP Indicators')
+    parser.add_argument('-ccurl', '--ccurladdr', action='store_const', const=1, required=False, help='Check Daily Malicious URL indicators')
+    parser.add_argument('-cchash', '--cchash', action='store_const', const=1, required=False, help='Check Daily Malicious Hash indicators')
     args = parser.parse_args()
+
+    if args.cchash:
+        file = open(args.output, 'w+')
+        file.write("**************************************\n")
+        file.write("** Cyber Cure Malicious Hash Report **\n")
+        file.write("**************************************\n")
+        file.close()
+        Cyber_Cure_Hash_List (args.output)
+
+    if args.ccipaddr:
+        file = open(args.output, 'w+')
+        file.write("************************************\n")
+        file.write("** Cyber Cure Malicious IP Report **\n")
+        file.write("************************************\n")
+        file.close()
+        Cyber_Cure_IP_List(args.output)
+
+    if args.ccurladdr:
+        file = open(args.output, "w+")
+        file.write("*************************************\n")
+        file.write("** Cyber Cure Malicious URL Report **\n")
+        file.write("*************************************\n")
+        file.close()
+        Cyber_Cure_URL_List(args.output)
 
     if args.abipaddr and ABkey:
         AbuseIP_Check(args.abipaddr, ABkey)
@@ -69,9 +98,7 @@ def main():
     if not args.filescan and not VTkey and not args.output:
         print("[!] Error: You must supply:\n\t1) File to Scan\n\t2) VT API KEY\n\t3) Output file\n\t Please try again.")
        
-
     if args.topvendor:
-        #print("****************Top vendor")
         if args.hash and VTkey:
             file = open(args.output, 'w+')
             file.write("************************************\n")
@@ -89,6 +116,81 @@ def main():
             file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
             file.close()
             VT_Request(VTkey, args.hash.rstrip(), args.output)
+
+def Cyber_Cure_Hash_List(output):
+    hash_response = requests.get("http://api.cybercure.ai/feed/get_hash", headers = {"Accept": "application/json"}, params={"output": "json"})
+    response = json.loads(hash_response.text)
+
+    print("---------------------------------------------")
+    print("--   Cyber Cure Intelligence Feed / Hash   --")
+    print("---------------------------------------------")
+    print("\n")
+    numMalHash = str(response["count"])
+    lastUpdate = str(response["ts"])
+    print("[*] Malicious Hashes: " + numMalHash)
+    print("[*] Last updated: " + lastUpdate + "\n")
+    file = open(output, 'a')
+    file.write("\n[*] Malicious Hashes: " + numMalHash + "\n")
+    file.write("[*] Last updated: " + lastUpdate + "\n\n")
+    for hash in response["data"]["hash"]:
+        dataOut = "[*] " + hash
+        print(dataOut)
+        file.write(dataOut)
+        file.write("\n")
+        time.sleep(0.001)
+    file.close()
+    
+
+def Cyber_Cure_IP_List(output):
+    ip_response = requests.get("http://api.cybercure.ai/feed/get_ips", headers = {"Accept": "application/json"}, params={"output": "json"})
+    response = json.loads(ip_response.text)
+
+    print("-------------------------------------------")
+    print("--   Cyber Cure Intelligence Feed / IP   --")
+    print("-------------------------------------------")
+    print("\n")
+    numMalIP = str(response["count"])
+    lastUpdate = str(response["ts"])
+    print("[*] Malicious IPs: " + numMalIP)
+    print("[*] Last updated: " + lastUpdate + "\n")
+    file = open(output, 'a')
+    file.write("\n[*] Malicious IPs: " + numMalIP + "\n")
+    file.write("[*] Last updated: " + lastUpdate + "\n\n")
+    for ip in response["data"]['ip']:
+        dataOut = "[*] " + ip
+        print(dataOut)
+        file.write(dataOut)
+        file.write("\n")
+        time.sleep(0.001)
+    file.close()
+
+def Cyber_Cure_URL_List(output):
+    url_response = requests.get("http://api.cybercure.ai/feed/get_url", headers = {"Accept": "application/json"}, params={"output": "json"})
+    response = json.loads(url_response.text)
+
+    print("-------------------------------------------")
+    print("--   Cyber Cure Intelligence Feed / URL  --")
+    print("-------------------------------------------")
+    print("\n")
+    numMalURL = str(response["count"])
+    lastUpdate = str(response["ts"])
+    print("[*] Malicious URLs: " + numMalURL)
+    print("[*] Last Updated: " + lastUpdate + "\n")
+    file = open(output, 'a')
+    file.write("\n[*] Malicious URLs: " + numMalURL + "\n")
+    file.write("[*] Last updated: " + lastUpdate + "\n\n")
+    for url in response["data"]["urls"]:
+        strippedDomain = url.strip()
+        x = re.sub(r"\.", "[dot]", strippedDomain)
+        x = re.sub("https://", "hxxps://", x)
+        x = re.sub("http://", "hxxp://", x)
+       
+        dataOut = "[*] " + x
+        print(dataOut)
+        file.write(dataOut)
+        file.write("\n")
+        time.sleep(0.001)
+    file.close()
 
 def AbuseIP_Check(IP, ABkey):
     querystring = {"ipAddress": IP, "maxAgeInDays": 90}
@@ -108,9 +210,10 @@ def AbuseIP_Check(IP, ABkey):
         print("-----------------------------------------------")
 
         # If Ip is private
-        if ("172" in decodedResponse["data"]["ipAddress"] or "192" in decodedResponse["data"]["ipAddress"]):
+        if ("172" in decodedResponse["data"]["ipAddress"] or "192" in decodedResponse["data"]["ipAddress"] or "10" in decodedResponse["data"]["ipAddress"]):
             if (decodedResponse["data"]["isPublic"] == False):
                 print("[-] Private IP")
+                exit(1)
         
         abuseScore = str(decodedResponse["data"]["abuseConfidenceScore"])
         totReports = str(decodedResponse["data"]["totalReports"])
