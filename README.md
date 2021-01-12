@@ -16,6 +16,10 @@
 
 Each of the above allows the user to quickly and efficiently check for malicious content and receive a CLI output aswell as save the results to an output file. 
 
+<b> -o / --output</b> -> Output the results to a user-specified file
+
+<h1><b>Virus Total Functionality </b> </h1>
+
 <b>-H / --hash</b> -> Input a hash value to scan on virus total 
 
 ![](images/Athena-Hash-Lookup.png)
@@ -23,8 +27,6 @@ Each of the above allows the user to quickly and efficiently check for malicious
 <b> -fs / --filescan</b> -> Upload a file to virustotal 
 
 ![](images/Athena-File-Upload.png)
-
-<b> -o / --output</b> -> Output the results to a user-specified file
 
 <b> -t / --topvendors</b> -> Display the Top 5 Anti-virus vendor results
 
@@ -34,9 +36,13 @@ Each of the above allows the user to quickly and efficiently check for malicious
 
 ![](images/Athena-VT-IP-Lookup.png)
 
+<h1><b> AbuseIPDB Functionality </b> </h1>
+
 <b> -aip / --aipaddr </b> -> Scan an IP address with AbuseIPDB for malicious confidence and past malicious activity related to a specific IP
 
 ![](images/Athena-Abuse-IP-Lookup.png)
+
+<h1><b> CyberCure.ai Intelligence Feed Functionality </b> </h1>
 
 <b> -ccip / --ccipaddr </b> -> Check for daily malicious IPs via Cybercure.ai
 
