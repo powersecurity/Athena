@@ -36,6 +36,10 @@ Each of the above allows the user to quickly and efficiently check for malicious
 
 ![](images/Athena-VT-IP-Lookup.png)
 
+<b> -url / --url </b> -> Scan a URL for malicious indicators
+
+![](images/Athena-VT-MaliciousURL.png)
+
 <h1><b> AbuseIPDB Functionality </b> </h1>
 
 <b> -aip / --aipaddr </b> -> Scan an IP address with AbuseIPDB for malicious confidence and past malicious activity related to a specific IP
