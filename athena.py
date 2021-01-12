@@ -12,7 +12,7 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     5) Daily list of malicious IP/URL/Hash from Cybercure.ai
 
 Author: Jack Power
-Version: 4.1
+Version: 4.2
 
 '''
 
@@ -25,7 +25,7 @@ import requests
 import re 
 
 
-versionNo = "4.1"
+versionNo = "4.2"
 VT_key = "" # Set the Virustotal API Key
 AB_key = "" # Set the AbuseIPDB API Key
 
@@ -343,9 +343,20 @@ def VT_URL_Check(url, VT_key):
 
     json_response = response.json()
     x = str(json_response)
-    scanID = str(x['scan_id'])
-    scanDate = str(x['scan_date'])
-    positiveRate = str(x['positive'])
+    x = x.replace("'", '"')
+    x = x.replace("False", '"False"')
+    x = x.replace("True", '"true"')
+    x = x.replace("None", '"None"')
+    try:
+        x = json.loads(x)
+    except KeyError:
+        print("[!] Unable to lookup URL")
+
+    scanID = x['scan_id']
+    scanDate = x['scan_date']
+    positiveRate = str(x['positives'])
+    permalink = x['permalink']
+    resource = x['resource']
 
     print("\n[*] Scan ID: " + scanID)
     print("[*] Scan Date: " + scanDate)
@@ -362,12 +373,14 @@ def VT_URL_Check(url, VT_key):
         print("-------------------------------------\n")
 
         for vendor in x['scans']:
+            #print(vendor)
             detected = str(x['scans'][vendor]['detected'])
-            if detected == "True":
+            #print(detected)
+            if detected == "True" or detected == "true":
                 result = str(x['scans'][vendor]['result'])
                 time.sleep(0.5)
                 print("[*] " + vendor + " | " + result)
-            elif detected == "False":
+            elif detected == "False" or detected == 'false':
                 result = str(x['scans'][vendor]['result'])
                 if result != "clean site" and result != "unrated site":
                     time.sleep(0.5)
