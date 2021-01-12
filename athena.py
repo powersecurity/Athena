@@ -83,7 +83,18 @@ def main():
     if args.cchash:
         try:
             file = open(args.output, 'w+')
-            file.write("************************************34.212.46.198/3dC072F/Emotet1.doc
+            file.write("**************************************\n")
+            file.write("** Cyber Cure Malicious Hash Report **\n")
+            file.write("**************************************\n")
+            file.close()
+            Cyber_Cure_Hash_List(args.output)
+        except TypeError:
+            print("<?> You need to output to a file: -o <ouput file>")
+        
+    if args.ccipaddr:
+        file = open(args.output, 'w+')
+        file.write("************************************\n")
+        file.write("** Cyber Cure Malicious IP Report **\n")
         file.write("************************************\n")
         file.close()
         Cyber_Cure_IP_List(args.output)
@@ -597,3 +608,4 @@ def VT_Request_Top_Vendor(VT_key, hash, topvendor, output):
 
 if __name__ == '__main__':
     main()
+        
