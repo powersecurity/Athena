@@ -4,6 +4,7 @@
 
 <h1><b>Overview</b></h1>
 <b>Automated Tool for Open-Source Cyber Threat Intelligence</b>
+
 Athena is a tool developed with the task of automating open-source threat intelligence feeds such as Virustotal, AbuseIPDB and Cybercure.ai. The main goal of         Athena is to have these resources in one place where the user can easily pass the relevant command-line argument and get an automated response for such things as malicous IPs,URLs and IOCs etc, using API calls to threat intelligence feeds. 
 
 <b>Athena</b> <i>Version 4.4</i> can be used for automated Threat Intelligence lookups. You can perform the following functions:
