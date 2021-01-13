@@ -1,10 +1,12 @@
 # Athena
 
-![](images/Athena-header.png)
+![](images/images/Athena-Header.png)
 
-<b>Automated Tool for Cyber Threat Intelligence</b>
+<h1><b>Overview</b></h1>
+<b>Automated Tool for Open-Source Cyber Threat Intelligence</b>
+Athena is a tool developed with the task of automating open-source threat intelligence feeds such as Virustotal, AbuseIPDB and Cybercure.ai. The main goal of         Athena is to have these resources in one place where the user can easily pass the relevant command-line argument and get an automated response for such things as malicous IPs,URLs and IOCs etc, using API calls to threat intelligence feeds. 
 
-<b>Athena</b> <i>Version 4.0</i> can be used for automated Threat Intelligence lookups. You can perform the following functions:
+<b>Athena</b> <i>Version 4.4</i> can be used for automated Threat Intelligence lookups. You can perform the following functions:
 
 1) Virustotal Hash scan 
 2) Virustotal file upload
@@ -12,50 +14,52 @@
 4) AbuseIPDB Lookup
 5) Cybercure.ai Threat Intelligence lookups for Malicious IP/URL/Hash
 
-![](images/Athena-help.png)
+<h1><b> Functionaility </b></h1>
+Each of the above allows the user to quickly and efficiently check for malicious content and receive a CLI output aswell as save the results to an output file.
 
-Each of the above allows the user to quickly and efficiently check for malicious content and receive a CLI output aswell as save the results to an output file. 
+-o / --output // Output the results to a user-specified file
 
-<b> -o / --output</b> -> Output the results to a user-specified file
+-H / --hash // Input a hash to scan on Virustotal
+![](images/images/Athena-Hash.gif)
 
-<h1><b>Virus Total Functionality </b> </h1>
+-t / --topvendor // Input a hash to scan on Virustotal and return the most reputable vendor results
+![](images/images/Athena-Hash-Top5.gif)
 
-<b>-H / --hash</b> -> Input a hash value to scan on virus total 
+-fs / --filescan // Upload a file to Virustotal to scan (A report can be generated automatically, after the scan).
+![](images/images/Athena-Fileupload.gif)
 
-![](images/Athena-Hash-Lookup.png)
+-vtip / --vtipaddr // Scan an IP address in Virustotal 
+![](images/images/Athena-VTIP.gif)
 
-<b> -fs / --filescan</b> -> Upload a file to virustotal 
+-url / --url // Scan a URL in Virustotal
+![](images/images/Athena-VTURL.gif)
 
-![](images/Athena-File-Upload.png)
+-aip / --aipaddr // Scan an IP for reputation in AbuseIPDB
+![](images/images/Athena-AbuseIP.gif)
 
-<b> -t / --topvendors</b> -> Display the Top 5 Anti-virus vendor results
+-ccip / --ccip // Generate a list of known malicious IPs via the Cybercure.ai API (Change everyday)
+![](images/images/Athena-CCIP.gif)
 
-![](images/Athena-Hash-Lookup-top5.png)
+-ccurl / --ccurl // Generate a list of known malicious URLs via the Cybercure.ai API (Change everyday)
+![](images/images/Athena-CCURL.gif)
 
-<b> -vtip / --vtipaddr </b> -> Scan an IP address / Find any malicious samples or domains related to an IP
+--cchash / --cchash // Generate a list of known malicious Hashes via the cybercure.ai API (Change everyday)
+![](images/images/Athena-CCHash.gif)
 
-![](images/Athena-VT-IP-Lookup.png)
+<h1><b>Requirements and Installation</b></h1>
 
-<b> -url / --url </b> -> Scan a URL for malicious indicators
+[+] Python3
 
-![](images/Athena-VT-MaliciousURL.png)
+[+] The following dependencies: 
 
-<h1><b> AbuseIPDB Functionality </b> </h1>
+        1) pyfiglet
+        2) argparse
+        3) time
+        4) json
+        5) requests
+        6) re 
+        7) sys
+        
+[+] Virustotal API key
 
-<b> -aip / --aipaddr </b> -> Scan an IP address with AbuseIPDB for malicious confidence and past malicious activity related to a specific IP
-
-![](images/Athena-Abuse-IP-Lookup.png)
-
-<h1><b> CyberCure.ai Intelligence Feed Functionality </b> </h1>
-
-<b> -ccip / --ccipaddr </b> -> Check for daily malicious IPs via Cybercure.ai
-
-![](images/Athena-CC-IP-Lookup.png)
-
-<b> -ccurl / --ccurladdr </b> -> Check for daily malicious URLs via Cybercure.ai
-
-![](images/Athena-CCURL-Lookup.png)
-
-<b> -cchash / --cchash </b> -> Check for daily malicious Hashs via Cybercure.ai
-
-![](images/Athena-CC-Hash-List.png)
+[+] AbuseIPDB API key
