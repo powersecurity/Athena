@@ -12,7 +12,7 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     5) Daily list of malicious IP/URL/Hash from Cybercure.ai
 
 Author: Jack Power
-Version: 4.2
+Version: 4.3
 
 '''
 
@@ -23,9 +23,9 @@ import time
 import json
 import requests
 import re 
+import sys
 
-
-versionNo = "4.2"
+versionNo = "4.3"
 VT_key = "" # Set the Virustotal API Key
 AB_key = "" # Set the AbuseIPDB API Key
 
@@ -47,7 +47,8 @@ UNDERLINE = '\033[4m'
 #*************************#
 
 def banner():
-    banner_text = Figlet(font='5lineoblique')
+    starwars_font = 'starwars'
+    banner_text = Figlet(font='poison')
     printBanner = banner_text.renderText('Athena')
     about = "\tAutomating Cyber Threat Intelligence"
     author = "Developed by: Jack Power"
@@ -80,6 +81,14 @@ def main():
     #------------------------#
     args = parser.parse_args()
 
+    if len(sys.argv) == 1:
+        print("[!] You have not passed any arguments\n   '-h' for help menu")
+
+    if len(sys.argv) >= 2:
+        if not VT_key:
+            print("[!] API Key Error: You have not supplied your Virustotal API key")
+            time.sleep(0.7)
+    
     if args.cchash:
         try:
             file = open(args.output, 'w+')
@@ -89,26 +98,39 @@ def main():
             file.close()
             Cyber_Cure_Hash_List(args.output)
         except TypeError:
-            print("<?> You need to output to a file: -o <ouput file>")
+            print("[!] Output Error: You have not supplied an output file:\n     E.g: /home/user/directory/filename.txt or ./filename.txt")
+            time.sleep(0.7)
         
     if args.ccipaddr:
-        file = open(args.output, 'w+')
-        file.write("************************************\n")
-        file.write("** Cyber Cure Malicious IP Report **\n")
-        file.write("************************************\n")
-        file.close()
-        Cyber_Cure_IP_List(args.output)
+        try:
+            file = open(args.output, 'w+')
+            file.write("************************************\n")
+            file.write("** Cyber Cure Malicious IP Report **\n")
+            file.write("************************************\n")
+            file.close()
+            Cyber_Cure_IP_List(args.output)
+        except TypeError:
+            print("[!] Output Error: You have not supplied an output file:\n     E.g: /home/user/directory/filename.txt or ./filename.txt")
+            time.sleep(0.7)
 
     if args.ccurladdr:
-        file = open(args.output, "w+")
-        file.write("*************************************\n")
-        file.write("** Cyber Cure Malicious URL Report **\n")
-        file.write("*************************************\n")
-        file.close()
-        Cyber_Cure_URL_List(args.output)
-    
-    if args.abipaddr and AB_key:    # AbuseIP IP Check
-        AbuseIP_Check(args.abipaddr, AB_key)
+        try:
+            file = open(args.output, "w+")
+            file.write("*************************************\n")
+            file.write("** Cyber Cure Malicious URL Report **\n")
+            file.write("*************************************\n")
+            file.close()
+            Cyber_Cure_URL_List(args.output)
+        except TypeError:
+            print("[!] Output Error: You have not supplied an output file:\n     E.g: /home/user/directory/filename.txt or ./filename.txt")
+            time.sleep(0.7)
+
+    if args.abipaddr:    # AbuseIP IP Check
+        if AB_key == "":
+            print("[!] API Key Error: You did not supply your AbuseIPDB API Key")
+            time.sleep(0.7)
+        if AB_key:
+            AbuseIP_Check(args.abipaddr, AB_key)
     
     if args.vtipaddr and VT_key:    # VT IP Check
         VT_IP_Check(args.vtipaddr, VT_key)
@@ -118,34 +140,43 @@ def main():
     
     if args.filescan and VT_key and args.output:    # VT File Upload
         VT_Send_File_To_Scan(VT_key, args.filescan, args.output)
-    if not args.filescan and not VT_key and not args.output:
-        print("[!] Error: You must supply:\n\t1) File to Scan\n\t2) VT API KEY\n\t3) Output file\n\t Please try again.")
-    
+    elif args.filescan and not args.output:
+        print("[!] Output Error: You have not supplied an output file:\n     E.g: /home/user/directory/filename.txt or ./filename.txt")
+        time.sleep(0.7)
+
     if args.topvendor:
-        if args.hash and VT_key:
-            file = open(args.output, 'w+')
-            file.write("************************************\n")
-            file.write("** TOP 5 VirusTotal Vendor Report **\n")
-            file.write("************************************\n")
-            file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
-            file.close()
-            VT_Request_Top_Vendor(VT_key, args.hash.rstrip(), args.topvendor, args.output)
+        try:
+            if args.hash and VT_key:
+                file = open(args.output, 'w+')
+                file.write("************************************\n")
+                file.write("** TOP 5 VirusTotal Vendor Report **\n")
+                file.write("************************************\n")
+                file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
+                file.close()
+                VT_Request_Top_Vendor(VT_key, args.hash.rstrip(), args.topvendor, args.output)
+        except TypeError:
+            print("[!] Output Error: You have not supplied an output file:\n     E.g: /home/user/directory/filename.txt or ./filename.txt")
+            time.sleep(0.7)
     else:
         if args.hash and VT_key:
-            file = open(args.output, 'w+')
-            file.write("*******************************\n")
-            file.write("** VirusTotal Vendor Report **\n")
-            file.write("******************************\n")
-            file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
-            file.close()
-            VT_Request(VT_key, args.hash.rstrip(), args.output)
+            try:
+                file = open(args.output, 'w+')
+                file.write("*******************************\n")
+                file.write("** VirusTotal Vendor Report **\n")
+                file.write("******************************\n")
+                file.write("[*] Hash Value: " + args.hash.rstrip() + "\n")
+                file.close()
+                VT_Request(VT_key, args.hash.rstrip(), args.output)
+            except TypeError:
+                print("[!] Output Error: You have not supplied an output file:\n     E.g: /home/user/directory/filename.txt or ./filename.txt")
+                time.sleep(0.7)
 
 # Check Hash Validity
 def checkhash(hashValue):
     # Check if VT Key exists
-    if VT_key == "":
-        print("[!] API Key Error: You have not supplied your Virustotal API key")
-    elif VT_key != "":
+    #if VT_key == "":
+    #    print("[!] API Key Error: You have not supplied your Virustotal API key")
+    if VT_key != "":
         try:
             if len(hashValue) == 32:
                 print("[+] Checking MD5 Hash: " + hashValue + " in Virustotal")
@@ -171,7 +202,7 @@ def checkhash(hashValue):
 # Handles JSON responses
 def jsonResponse(response, json_response, hash, output):
     if response == 0:
-            print(WARNING + "[-]" + hash + " is not in Virus total.\n" + ENDC)
+            print(WARNING + "[-] " + hash + " is not in Virus total" + ENDC)
             time.sleep(1)
             file = open(output, 'a')
             file.write("[-]" + hash + " is not in Virus total\n")
@@ -408,13 +439,12 @@ def VT_IP_Check(IP, VT_key):
     beautifyJsonIP = json.dumps(parsed, indent=2, sort_keys=True)
 
     # Beautify the JSON
-    print("\n\n[*]" + IP + " analyzed by Virustotal")
     time.sleep(0.05)
     print("\n")
     print("----------------------------------------------")
     print("-          Virus Total / IP Report           -")
     print("----------------------------------------------\n")
-
+    print("[*] " + IP + " analyzed by Virustotal")
     response = int(json_response.get('response_code'))
     try:
         as_owner = parsed['as_owner']
@@ -448,7 +478,7 @@ def VT_IP_Check(IP, VT_key):
         x = re.sub(r"\.", "[dot]", strippedDomain)
         x = re.sub("https://", "hxxps://", x)
         x = re.sub("http://", "hxxp://", x)
-        print(x)
+        print(FAIL + x + ENDC)
         time.sleep(0.01)
 
     print("\n[*] Detected Downloaded Samples:\n-----------------------------------------")
@@ -460,7 +490,7 @@ def VT_IP_Check(IP, VT_key):
             parsedSampleSha = sample['sha256']
             time.sleep(0.01)
             print("[+] Sample Positive Rate: " + parsedSamplePositives)
-            print("\t Sample SHA256 Hash: " + parsedSampleSha + "\n")
+            print(FAIL + "\t Sample SHA256 Hash: " + parsedSampleSha + ENDC + "\n")
     except KeyError:
         print("[-] No Detected Downloaded Samples")
         exit(1)
