@@ -12,7 +12,7 @@ Description: Cyber T.I tool allows thew user to perform the following VT lookups
     5) Daily list of malicious IP/URL/Hash from Cybercure.ai
 
 Author: Jack Power
-Version: 4.3
+Version: 4.4
 
 '''
 
@@ -25,7 +25,7 @@ import requests
 import re 
 import sys
 
-versionNo = "4.3"
+versionNo = "4.4"
 VT_key = "" # Set the Virustotal API Key
 AB_key = "" # Set the AbuseIPDB API Key
 
@@ -50,10 +50,11 @@ def banner():
     starwars_font = 'starwars'
     banner_text = Figlet(font='poison')
     printBanner = banner_text.renderText('Athena')
-    about = "\tAutomating Cyber Threat Intelligence"
-    author = "Developed by: Jack Power"
-    print(TITLE + printBanner + ENDC + "\n" + WARNING + UNDERLINE + about + ENDC)
-    print("\n" + OKBLUE + author + ENDC +  OKGREEN + "\nVersion: " + versionNo + ENDC + "\n\n")
+    about = "Automating Opensource Cyber Threat Intelligence"
+    aboutpre = "    "
+    author = "\t\tDeveloped by: Jack Power"
+    print(TITLE + printBanner + ENDC + "\n" + aboutpre +  WARNING + UNDERLINE + about + ENDC)
+    print("\n" + OKBLUE + author + ENDC +  OKGREEN + "\n\t\t     Version: " + versionNo + ENDC + "\n\n")
 
 def main():
     banner() # Print banner
@@ -410,12 +411,12 @@ def VT_URL_Check(url, VT_key):
             if detected == "True" or detected == "true":
                 result = str(x['scans'][vendor]['result'])
                 time.sleep(0.5)
-                print("[*] " + vendor + " | " + result)
+                print("[*] " + vendor + " | " + FAIL + result + ENDC)
             elif detected == "False" or detected == 'false':
                 result = str(x['scans'][vendor]['result'])
                 if result != "clean site" and result != "unrated site":
                     time.sleep(0.5)
-                    print("[*] " +vendor + " | " + result)
+                    print("[*] " +vendor + " | " + FAIL + result  + ENDC)
         
 # VT IP Lookup
 def VT_IP_Check(IP, VT_key):
